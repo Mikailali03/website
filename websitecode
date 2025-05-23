@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cultivating Curiosity: Atlanta Summer Learning Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Visualization & Content Choices:
+        - Report Info: Executive Summary -> Goal: Inform (Overall Program) -> Viz/Method: Text block -> Interaction: Static -> Justification: Initial context.
+        - Report Info: GSE Standards (Table 1 & text) -> Goal: Inform, Compare (1st vs 2nd grade by subject) -> Viz/Method: Tabbed sections for subjects, side-by-side text comparison -> Interaction: Tab clicks -> Justification: Easy subject-specific lookup and comparison.
+        - Report Info: Venue Details (Table 2 & text) -> Goal: Inform, Organize, Compare (Venues) -> Viz/Method: Interactive cards for each venue, filter by cost/subject -> Interaction: Card click to expand details, filter selection -> Justification: Quick scanning and deep dive into relevant venues.
+        - Report Info: Weekly Program Blueprints (Table 3 & text) -> Goal: Inform, Organize (Sample Plans) -> Viz/Method: Accordion for each week, structured text for activities -> Interaction: Accordion clicks -> Justification: Step-by-step exploration of how subjects integrate.
+        - Report Info: Practical Strategies -> Goal: Inform (Tips) -> Viz/Method: Expandable text sections -> Interaction: Click to expand -> Justification: Focused reading on specific advice.
+        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. Chart.js/Plotly not used as SPA presents the plan, not data from the plan. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .tab-button.active {
+            border-color: #0D9488; /* Teal-600 */
+            color: #0D9488;
+            font-weight: 600;
+        }
+        .nav-button.active {
+            background-color: #0D9488; /* Teal-600 */
+            color: white;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .accordion-content.open {
+            max-height: 2000px; /* Adjust as needed */
+            transition: max-height 0.5s ease-in;
+        }
+        .sticky-nav {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background-color: inherit; /* Or a specific color like white */
+        }
+         [x-cloak] { display: none !important; }
+
+        /* Mobile specific adjustments for tab navigation */
+        @media (max-width: 639px) { /* Tailwind's 'sm' breakpoint is 640px */
+            .gse-tabs-nav {
+                flex-wrap: wrap; /* Allow tabs to wrap to next line */
+                justify-content: center; /* Center tabs when wrapped */
+                gap: 0.5rem; /* Smaller gap for mobile */
+                padding-bottom: 0.5rem; /* Add some padding if they wrap */
+            }
+            .tab-button {
+                padding-left: 0.75rem; /* Smaller horizontal padding */
+                padding-right: 0.75rem;
+                font-size: 0.75rem; /* Smaller font size for tabs */
+            }
+        }
+    </style>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-amber-50 text-stone-800" x-data="{ activeSection: 'overview' }">
+
+    <header class="sticky-nav bg-amber-100 shadow-md">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row items-center justify-between h-auto sm:h-20 py-4 sm:py-0">
+                <div class="text-center sm:text-left mb-4 sm:mb-0">
+                    <h1 class="text-2xl sm:text-3xl font-bold text-teal-700">Cultivating Curiosity</h1>
+                    <p class="text-sm text-stone-600">Atlanta Summer Learning Explorer</p>
+                </div>
+                <nav class="flex flex-wrap justify-center gap-2 sm:gap-3">
+                    <button @click="activeSection = 'overview'" :class="{ 'active': activeSection === 'overview' }" class="nav-button px-3 py-2 rounded-md text-sm font-medium text-stone-700 hover:bg-teal-500 hover:text-white transition-colors">Overview</button>
+                    <button @click="activeSection = 'gse'" :class="{ 'active': activeSection === 'gse' }" class="nav-button px-3 py-2 rounded-md text-sm font-medium text-stone-700 hover:bg-teal-500 hover:text-white transition-colors">GSE Explorer</button>
+                    <button @click="activeSection = 'venues'" :class="{ 'active': activeSection === 'venues' }" class="nav-button px-3 py-2 rounded-md text-sm font-medium text-stone-700 hover:bg-teal-500 hover:text-white transition-colors">Venue Guide</button>
+                    <button @click="activeSection = 'themes'" :class="{ 'active': activeSection === 'themes' }" class="nav-button px-3 py-2 rounded-md text-sm font-medium text-stone-700 hover:bg-teal-500 hover:text-white transition-colors">Weekly Themes</button>
+                    <button @click="activeSection = 'tips'" :class="{ 'active': activeSection === 'tips' }" class="nav-button px-3 py-2 rounded-md text-sm font-medium text-stone-700 hover:bg-teal-500 hover:text-white transition-colors">Learning Tips</button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <section id="overview" x-show="activeSection === 'overview'" x-cloak>
+            <h2 class="text-3xl font-semibold text-teal-600 mb-6">Program Overview</h2>
+            <div class="bg-white p-6 rounded-lg shadow space-y-4 text-stone-700">
+                <p class="text-lg">Welcome to the "Cultivating Curiosity" summer learning program! This interactive guide helps you explore a dynamic, integrated curriculum designed for rising 1st and 2nd graders (ages 6-7) in the Atlanta area.</p>
+                <p>The program's core philosophy is built on <strong class="text-teal-700">experiential, active learning</strong>. It meticulously weaves together Georgia Standards of Excellence (GSE) objectives across Science, Social Studies, Mathematics, Physical Education, and Language Arts within every planned outing. A key feature is the age-appropriate introduction of advanced concepts like <strong class="text-teal-700">data gathering and visualization</strong>, aiming to foster critical thinking and analytical skills from a young age.</p>
+                <p>By transforming Atlanta's rich resources—from the Georgia Aquarium and Stone Mountain Park (leveraging existing memberships) to free gems like the High Museum of Art and local nature centers—into an extended classroom, this program seeks to:</p>
+                <ul class="list-disc list-inside space-y-1 pl-4">
+                    <li>Mitigate summer learning loss.</li>
+                    <li>Deepen understanding of upcoming grade-level topics.</li>
+                    <li>Promote essential physical activity.</li>
+                    <li>Cultivate a lifelong passion for learning and exploration.</li>
+                </ul>
+                <p>This guide is structured to help you understand the program's foundations (GSE Standards), discover ideal learning locations (Venue Guide), see practical application (Weekly Themes), and get helpful advice (Learning Tips). Let's embark on a summer of discovery and growth!</p>
+            </div>
+        </section>
+
+        <section id="gse" x-show="activeSection === 'gse'" x-cloak x-data="{ activeTab: 'science' }">
+            <h2 class="text-3xl font-semibold text-teal-600 mb-6">Georgia Standards of Excellence (GSE) Explorer</h2>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <p class="mb-6 text-stone-700">This section provides an overview of the key Georgia Standards of Excellence (GSE) for rising 1st and 2nd graders that form the academic backbone of this summer learning program. Understanding these standards helps in appreciating how each activity and outing is designed to be both enriching and academically relevant. The program aims to reinforce and expand upon these objectives in an engaging, hands-on manner.</p>
+                <div class="mb-4 border-b border-stone-200">
+                    <nav class="-mb-px flex space-x-4 gse-tabs-nav" aria-label="Tabs">
+                        <button @click="activeTab = 'science'" :class="{ 'active': activeTab === 'science' }" class="tab-button whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-transparent text-stone-500 hover:text-teal-600 hover:border-teal-500">🔬 Science</button>
+                        <button @click="activeTab = 'social_studies'" :class="{ 'active': activeTab === 'social_studies' }" class="tab-button whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-transparent text-stone-500 hover:text-teal-600 hover:border-teal-500">🏛️ Social Studies</button>
+                        <button @click="activeTab = 'math'" :class="{ 'active': activeTab === 'math' }" class="tab-button whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-transparent text-stone-500 hover:text-teal-600 hover:border-teal-500">🧮 Mathematics</button>
+                        <button @click="activeTab = 'pe'" :class="{ 'active': activeTab === 'pe' }" class="tab-button whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-transparent text-stone-500 hover:text-teal-600 hover:border-teal-500">🏃 Physical Education</button>
+                        <button @click="activeTab = 'la'" :class="{ 'active': activeTab === 'la' }" class="tab-button whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm border-transparent text-stone-500 hover:text-teal-600 hover:border-teal-500">📚 Language Arts</button>
+                    </nav>
+                </div>
+
+                <div x-show="activeTab === 'science'" class="space-y-4 text-stone-700">
+                    <h3 class="text-xl font-semibold text-teal-700">Science: Exploring the Natural and Physical World</h3>
+                    <p>Science education encourages questioning, observation, and investigation. A key theme is early data literacy – obtaining, evaluating, communicating information, and representing data in tables/graphs. Engineering and problem-solving are also integrated through designing solutions.</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="border p-4 rounded-md bg-amber-50">
+                            <h4 class="font-semibold text-lg mb-2">Key 1st Grade Objectives:</h4>
+                            <ul class="list-disc list-inside space-y-1 text-sm">
+                                <li>Observe, question, investigate patterns (weather, light, sound, magnets, plants/animals).</li>
+                                <li>Represent data in tables/graphs.</li>
+                                <li>Identify plant parts, compare plant/animal needs, design solutions.</li>
+                                <li>Understand how light enables visibility and sound is produced by vibrations.</li>
+                            </ul>
+                        </div>
+                        <div class="border p-4 rounded-md bg-sky-50">
+                            <h4 class="font-semibold text-lg mb-2">Key 2nd Grade Objectives:</h4>
+                            <ul class="list-disc list-inside space-y-1 text-sm">
+                                <li>Understand stars, sun/moon patterns, shadow changes, moon phases.</li>
+                                <li>Investigate properties of matter (solids/liquids, changes of state).</li>
+                                <li>Explain force (push/pull) on object motion, design devices, analyze data.</li>
+                                <li>Explore life cycles of animals/plants, animal roles in pollination/seed dispersal.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p class="mt-2 text-sm italic"><strong>Program Connection:</strong> Outings to nature centers, Stone Mountain, and the Aquarium provide ample opportunities for direct observation, data collection (e.g., counting species, tracking shadows), and understanding life cycles and physical forces.</p>
+                </div>
+
+                <div x-show="activeTab === 'social_studies'" class="space-y-4 text-stone-700">
+                    <h3 class="text-xl font-semibold text-teal-700">Social Studies: Discovering History, Geography, and Civics</h3>
+                    <p>Social studies introduces historical figures, geographic concepts, civic understanding, and basic economics. There's a focus on connecting local Atlanta sites to broader narratives and making abstract concepts tangible.</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="border p-4 rounded-md bg-amber-50">
+                            <h4 class="font-semibold text-lg mb-2">Key 1st Grade Objectives:</h4>
+                            <ul class="list-disc list-inside space-y-1 text-sm">
+                                <li>Contributions of historical figures (Franklin, Jefferson, Roosevelt, Carver, etc.).</li>
+                                <li>Locate city, county, state, nation, continents/oceans on maps/globes.</li>
+                                <li>Identify landforms. Use compass rose.</li>
+                                <li>Understand goods/services, scarcity, producers/consumers.</li>
+                                <li>Positive character traits (fairness, respect, courage).</li>
+                            </ul>
+                        </div>
+                        <div class="border p-4 rounded-md bg-sky-50">
+                            <h4 class="font-semibold text-lg mb-2">Key 2nd Grade Objectives:</h4>
+                            <ul class="list-disc list-inside space-y-1 text-sm">
+                                <li>Lives/contributions of Georgia historical figures (MLK Jr., Jackie Robinson, Jimmy Carter).</li>
+                                <li>Compare Creek/Cherokee cultures to present.</li>
+                                <li>Understand government, rules/laws, roles of elected officials.</li>
+                                <li>Use letter/number map grids, map keys, explain geography's impact.</li>
+                                <li>Allocation of goods/services.</li>
+                            </ul>
+                        </div>
+                    </div>
+                     <p class="mt-2 text-sm italic"><strong>Program Connection:</strong> Visits to MLK Jr. National Historical Park, Georgia Capitol Museum, and discussions at various sites about past vs. present, resource use (e.g., entry fees), and local geography bring these concepts to life.</p>
+                </div>
+
+                <div x-show="activeTab === 'math'" class="space-y-4 text-stone-700">
+                    <h3 class="text-xl font-semibold text-teal-700">Mathematics: Building Number Sense and Data Literacy</h3>
+                    <p>Mathematics focuses on problem-solving, reasoning, and modeling with math in real-life contexts. A critical component is data representation and interpretation through picture and bar graphs.</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="border p-4 rounded-md bg-amber-50">
+                            <h4 class="font-semibold text-lg mb-2">Key 1st Grade Objectives:</h4>
+                            <ul class="list-disc list-inside space-y-1 text-sm">
+                                <li>Count to 120, place value (tens/ones), add/subtract within 20.</li>
+                                <li>Order objects by length, express length in units.</li>
+                                <li>Represent/interpret data.</li>
+                                <li>Solve real-life problems. Reason with time and shapes.</li>
+                            </ul>
+                        </div>
+                        <div class="border p-4 rounded-md bg-sky-50">
+                            <h4 class="font-semibold text-lg mb-2">Key 2nd Grade Objectives:</h4>
+                            <ul class="list-disc list-inside space-y-1 text-sm">
+                                <li>Place value to 1,000 (hundreds/tens/ones), skip-counting.</li>
+                                <li>Add/subtract within 100/1000, foundations for multiplication.</li>
+                                <li>Draw picture/bar graphs for data sets (up to four categories).</li>
+                                <li>Measure lengths with different units, tell time, solve money problems.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p class="mt-2 text-sm italic"><strong>Program Connection:</strong> Activities like counting animals at the Aquarium, measuring shadows at Stone Mountain, classifying objects at nature centers, and discussing costs/budgets during outings directly feed into creating simple graphs and applying math skills.</p>
+                </div>
+
+                <div x-show="activeTab === 'pe'" class="space-y-4 text-stone-700">
+                    <h3 class="text-xl font-semibold text-teal-700">Physical Education: Movement, Health, and Well-being</h3>
+                    <p>PE emphasizes lifetime fitness, physical activity, and skill development. Active outings inherently align with these standards, promoting gross motor skills, spatial awareness, and social interaction.</p>
+                     <div class="grid md:grid-cols-2 gap-4">
+                        <div class="border p-4 rounded-md bg-amber-50">
+                            <h4 class="font-semibold text-lg mb-2">Key 1st Grade Objectives:</h4>
+                            <ul class="list-disc list-inside space-y-1 text-sm">
+                                <li>Health-enhancing fitness, motor skills (throwing, catching, striking).</li>
+                                <li>Move in patterns/directions, balance, weight transfer.</li>
+                                <li>Awareness of personal space, goal setting.</li>
+                                <li>Responsible social behavior, value of physical activity.</li>
+                            </ul>
+                        </div>
+                        <div class="border p-4 rounded-md bg-sky-50">
+                            <h4 class="font-semibold text-lg mb-2">Key 2nd Grade Objectives:</h4>
+                            <ul class="list-disc list-inside space-y-1 text-sm">
+                                <li>Continued development of fitness, motor skills, movement patterns.</li>
+                                <li>Practice balance/weight transfer, personal space, fitness assessments.</li>
+                                <li>Exhibit responsible social behavior, recognize value of physical activity.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p class="mt-2 text-sm italic"><strong>Program Connection:</strong> Hiking at Stone Mountain, exploring museum exhibits, playing at nature center playgrounds, and even mimicking animal movements at the Aquarium all contribute to physical development and social learning.</p>
+                </div>
+
+                <div x-show="activeTab === 'la'" class="space-y-4 text-stone-700">
+                    <h3 class="text-xl font-semibold text-teal-700">Language Arts: Communicating and Comprehending</h3>
+                    <p>Language Arts development is fostered through rich oral experiences, descriptive language, journaling, and storytelling inspired by outings. The progression is from foundational skills to more complex reading, writing, and symbolic language.</p>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="border p-4 rounded-md bg-amber-50">
+                            <h4 class="font-semibold text-lg mb-2">Key 1st Grade Objectives:</h4>
+                            <ul class="list-disc list-inside space-y-1 text-sm">
+                                <li>Identify/manipulate syllables/phonemes, blend/segment sounds.</li>
+                                <li>Distinguish short/long vowels, decode/encode words (high-frequency).</li>
+                                <li>Read with fluency, form legible letters/words.</li>
+                                <li>Use common/proper/possessive nouns, complete sentences. Make predictions.</li>
+                            </ul>
+                        </div>
+                        <div class="border p-4 rounded-md bg-sky-50">
+                            <h4 class="font-semibold text-lg mb-2">Key 2nd Grade Objectives:</h4>
+                            <ul class="list-disc list-inside space-y-1 text-sm">
+                                <li>Identify/produce phoneme-grapheme correspondences (consonants/vowels).</li>
+                                <li>Decode/encode two-syllable words, apply syllable types.</li>
+                                <li>Read with increasing automaticity/prosody.</li>
+                                <li>Write in various genres, use symbolic language (courage, freedom), expand sentences.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <p class="mt-2 text-sm italic"><strong>Program Connection:</strong> Encouraging children to describe observations, ask questions, journal about experiences, learn new vocabulary related to outings, and create stories enhances all aspects of language arts.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="venues" x-show="activeSection === 'venues'" x-cloak x-data="venueData()">
+            <h2 class="text-3xl font-semibold text-teal-600 mb-6">Atlanta's Educational Playgrounds: Venue Guide</h2>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <p class="mb-6 text-stone-700">Atlanta offers a wealth of resources that can be transformed into exciting learning environments. This guide highlights key venues, noting their admission status, features, and how they connect to the summer learning program's educational goals. Use the filters to find venues that best suit your interests or budget for a particular day.</p>
+
+                <div class="mb-6 flex flex-wrap gap-4 items-center">
+                    <div>
+                        <label for="costFilter" class="block text-sm font-medium text-stone-700">Filter by Cost:</label>
+                        <select id="costFilter" x-model="costFilter" @change="filterVenues" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-stone-300 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm rounded-md">
+                            <option value="all">All Costs</option>
+                            <option value="Membership">Membership</option>
+                            <option value="Free">Free</option>
+                            <option value="Low Fee">Low Fee</option>
+                            <option value="Admission Fee">Admission Fee</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="subjectFilter" class="block text-sm font-medium text-stone-700">Filter by Subject Focus:</label>
+                        <select id="subjectFilter" x-model="subjectFilter" @change="filterVenues" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-stone-300 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm rounded-md">
+                            <option value="all">All Subjects</option>
+                            <option value="Science">Science</option>
+                            <option value="Social Studies">Social Studies</option>
+                            <option value="Math">Math</option>
+                            <option value="Art">Art/LA</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <template x-for="venue in filteredVenues" :key="venue.id">
+                        <div class="bg-amber-50 rounded-lg shadow-lg overflow-hidden flex flex-col">
+                            <div class="p-5 flex-grow">
+                                <h3 class="text-xl font-semibold text-teal-700 mb-2" x-text="venue.name"></h3>
+                                <p class="text-sm text-stone-600 mb-1"><strong class="text-stone-700">Admission:</strong> <span x-text="venue.admission"></span></p>
+                                <p class="text-sm text-stone-600 mb-3"><strong class="text-stone-700">Subject Focus:</strong> <span x-text="venue.subjects.join(', ')"></span></p>
+                                
+                                <div x-show="!venue.expanded">
+                                    <p class="text-xs text-stone-500 mb-3" x-text="venue.summary"></p>
+                                </div>
+
+                                <div x-show="venue.expanded" x-cloak class="text-xs text-stone-600 space-y-2 mb-3">
+                                    <p><strong class="text-stone-700">Key Features:</strong> <span x-html="venue.features"></span></p>
+                                    <p><strong class="text-stone-700">Educational Connections:</strong> <span x-html="venue.connections"></span></p>
+                                    <p><strong class="text-stone-700">Active Elements:</strong> <span x-html="venue.active_elements"></span></p>
+                                </div>
+                            </div>
+                            <button @click="venue.expanded = !venue.expanded" class="w-full text-left p-3 bg-teal-500 text-white hover:bg-teal-600 transition-colors text-sm font-medium">
+                                <span x-text="venue.expanded ? 'Show Less' : 'Show More Details'"></span>
+                            </button>
+                        </div>
+                    </template>
+                </div>
+                 <div x-show="filteredVenues.length === 0" class="text-center py-8 text-stone-500">
+                    <p>No venues match your current filter criteria.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="themes" x-show="activeSection === 'themes'" x-cloak x-data="weeklyThemesData()">
+            <h2 class="text-3xl font-semibold text-teal-600 mb-6">Integrated Weekly Themes & Activity Blueprints</h2>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <p class="mb-6 text-stone-700">This section provides concrete examples of how to structure weekly themes, demonstrating the seamless integration of all five subjects (Science, Social Studies, Math, Physical Education, Language Arts) and the incorporation of data gathering and visualization. Each week focuses on a primary venue or set of venues, with adaptable activities. Click on a week to see the detailed plan.</p>
+                <div class="space-y-4">
+                    <template x-for="(week, index) in themes" :key="index">
+                        <div class="border border-stone-200 rounded-lg">
+                            <button @click="toggleAccordion(index)" class="flex justify-between items-center w-full p-4 text-left text-lg font-medium text-teal-700 hover:bg-amber-100 focus:outline-none">
+                                <span x-text="week.title"></span>
+                                <svg class="w-5 h-5 transform transition-transform duration-200" :class="{'rotate-180': week.open}" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <div class="accordion-content" :class="{'open': week.open}">
+                                <div class="p-4 border-t border-stone-200 text-sm text-stone-700 space-y-3">
+                                    <p><strong class="text-stone-800">Core Outing(s):</strong> <span x-text="week.outings"></span></p>
+                                    <p class="italic text-xs" x-text="week.description"></p>
+                                    <div class="space-y-2">
+                                        <h4 class="font-semibold text-md text-teal-600 mt-2">Integrated Activities:</h4>
+                                        <div x-html="week.activities_html"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </section>
+
+        <section id="tips" x-show="activeSection === 'tips'" x-cloak x-data="learningTipsData()">
+            <h2 class="text-3xl font-semibold text-teal-600 mb-6">Practical Strategies for Enhanced Learning</h2>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <p class="mb-6 text-stone-700">To make the most of each outing and effectively integrate advanced concepts, here are some practical strategies. These tips cover data gathering, language arts cultivation, maximizing physical education benefits, pre- and post-visit engagement, and general advice for successful outings with young learners. Click on each topic to expand and read more.</p>
+                <div class="space-y-4">
+                    <template x-for="(tip, index) in tips" :key="index">
+                         <div class="border border-stone-200 rounded-lg">
+                            <button @click="toggleAccordion(index)" class="flex justify-between items-center w-full p-4 text-left text-lg font-medium text-teal-700 hover:bg-amber-100 focus:outline-none">
+                                <span x-text="tip.title"></span>
+                                <svg class="w-5 h-5 transform transition-transform duration-200" :class="{'rotate-180': tip.open}" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <div class="accordion-content" :class="{'open': tip.open}">
+                                <div class="p-4 border-t border-stone-200 text-sm text-stone-700 space-y-2" x-html="tip.content_html">
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-stone-800 text-amber-50 py-8 text-center">
+        <p class="text-sm">&copy; 2025 Summer Learning Program Explorer. Inspired by the "Cultivating Curiosity" Report.</p>
+        <p class="text-xs mt-1">Designed to make learning an adventure.</p>
+    </footer>
+
+<script>
+    function venueData() {
+        return {
+            costFilter: 'all',
+            subjectFilter: 'all',
+            venues: [
+                { 
+                    id: 1, name: 'Georgia Aquarium', admission: 'Membership', summary: 'Diverse marine life, conservation focus.',
+                    subjects: ['Science', 'Math', 'LA', 'SS', 'PE'], expanded: false,
+                    features: 'Galleries (Ocean Voyager, Dolphin Coast), animal presentations, interactive displays.',
+                    connections: 'Science (animal needs, ecosystems), Math (counting, data), LA (descriptive writing), SS (conservation).',
+                    active_elements: 'Extensive walking, interactive exhibits, mimicking animal movements.'
+                },
+                { 
+                    id: 2, name: 'Stone Mountain Park', admission: 'Membership', summary: 'Geology, hiking, history.',
+                    subjects: ['Science', 'Math', 'LA', 'SS', 'PE'], expanded: false,
+                    features: 'Granite mountain, Walk-Up Trail, Scenic Railroad, Dinosaur Explore, Historic Square.',
+                    connections: 'Science (geology, forces, weather), Math (measurement, shadow tracking), SS (landforms, local history).',
+                    active_elements: 'Hiking, climbing, playground play, exploring trails.'
+                },
+                { 
+                    id: 3, name: 'High Museum of Art', admission: 'Free on 2nd Sunday', summary: 'Art collections, family programs.',
+                    subjects: ['Art/LA', 'SS', 'Math'], expanded: false,
+                    features: 'Art collections, special exhibitions, family-friendly programming (2nd Sundays), art-making activities.',
+                    connections: 'LA (descriptive language, storytelling), SS (cultural history), Math (patterns, shapes).',
+                    active_elements: 'Art-making workshops, exploring galleries, movement during performances.'
+                },
+                { 
+                    id: 4, name: 'Dunwoody Nature Center', admission: 'Free', summary: 'Woodlands, trails, environmental stewardship.',
+                    subjects: ['Science', 'Math', 'LA', 'SS', 'PE'], expanded: false,
+                    features: '22 acres of woodlands, trails, meadows, nature camps, family festivals, sustainability workshops.',
+                    connections: 'Science (plants, animals, ecosystems), Math (counting, measuring), SS (environmental stewardship).',
+                    active_elements: 'Hiking trails, hands-on nature exploration, outdoor games.'
+                },
+                { 
+                    id: 5, name: 'Bear Creek Nature Center', admission: 'Low Fee', summary: 'Live bats, animal ambassadors, trails.',
+                    subjects: ['Science', 'Math', 'LA', 'PE'], expanded: false,
+                    features: 'Live native bat exhibit, animal ambassadors (reptiles, amphibians, birds of prey), pond, boardwalk, hiking trails.',
+                    connections: 'Science (zoology, botany, ecology, animal life cycles), Math (counting, classification).',
+                    active_elements: 'Live animal encounters, walking nature trails, outdoor exploration.'
+                },
+                { 
+                    id: 6, name: 'Piedmont Park', admission: 'Free Access (programs may have fee)', summary: 'Playgrounds, trails, nature programs.',
+                    subjects: ['Science', 'Math', 'LA', 'SS', 'PE'], expanded: false,
+                    features: 'Playgrounds, Legacy Fountain Splash Pad, trails, educational programs (e.g., "Needs, Seeds, and Nature").',
+                    connections: 'Science (plants, animals, life cycles), SS (local geography, environmental stewardship).',
+                    active_elements: 'Playground play, splash pad, hiking, structured nature programs.'
+                },
+                { 
+                    id: 7, name: 'Children\'s Museum of Atlanta', admission: 'Admission Fee', summary: 'Hands-on exhibits for young children.',
+                    subjects: ['Science', 'Math', 'LA', 'SS', 'PE'], expanded: false,
+                    features: 'Hands-on learning zones, interactive exhibits (e.g., "SCOOBY-DOO! Mansion Mayhem"), Imaginators.',
+                    connections: 'All subjects integrated through play-based learning.',
+                    active_elements: 'Hands-on exploration, interactive exhibits, imaginative play, active movement.'
+                },
+                { 
+                    id: 8, name: 'Fernbank Science Center', admission: 'Free (Exhibit Hall/Grounds)', summary: 'Exhibits, observatory, forest.',
+                    subjects: ['Science', 'Math', 'LA'], expanded: false,
+                    features: 'Exhibit hall, observatory (planetarium has fee), 65-acre forest, science labs.',
+                    connections: 'Science (Earth/Space, Physical, Life), Math (data collection, patterns).',
+                    active_elements: 'Exploring exhibits, walking forest trails, potential observatory viewing.'
+                },
+                { 
+                    id: 9, name: 'MLK Jr. National Historical Park', admission: 'Free', summary: 'Civil Rights history, Dr. King\'s legacy.',
+                    subjects: ['Social Studies', 'LA', 'Math'], expanded: false,
+                    features: 'Birth Home, Ebenezer Baptist Church, The King Center, World Peace Rose Garden, Junior Ranger Program.',
+                    connections: 'SS (historical figures, civil rights, character traits), LA (speech analysis, writing), Math (timelines).',
+                    active_elements: 'Walking tours, Junior Ranger activities, discussions.'
+                },
+                { 
+                    id: 10, name: 'Georgia Capitol Museum', admission: 'Free', summary: 'Government, civics, Georgia history.',
+                    subjects: ['Social Studies', 'LA', 'Math'], expanded: false,
+                    features: 'Artifact exhibits (flags, art), tours, scavenger hunts, lesson plans.',
+                    connections: 'SS (government, civics, Georgia history), LA (civics vocabulary, Math (map grids).',
+                    active_elements: 'Tours, interactive scavenger hunts, exploring artifacts.'
+                }
+            ],
+            filteredVenues: [],
+            init() {
+                this.filteredVenues = this.venues;
+            },
+            filterVenues() {
+                this.filteredVenues = this.venues.filter(venue => {
+                    const costMatch = this.costFilter === 'all' || venue.admission === this.costFilter || (this.costFilter === 'Free' && venue.admission.toLowerCase().includes('free')) || (this.costFilter === 'Low Fee' && venue.admission.toLowerCase().includes('low fee')) || (this.costFilter === 'Admission Fee' && venue.admission.toLowerCase().includes('admission fee'));
+                    const subjectMatch = this.subjectFilter === 'all' || venue.subjects.includes(this.subjectFilter);
+                    return costMatch && subjectMatch;
+                });
+            }
+        }
+    }
+
+    function weeklyThemesData() {
+        return {
+            themes: [
+                { 
+                    title: 'Week 1: Oceanic Explorers & Aquatic Data', 
+                    outings: 'Georgia Aquarium',
+                    open: false,
+                    description: 'Immerse in marine life, exploring habitats, and practicing data collection.',
+                    activities_html: `
+                        <ul class="list-disc list-inside space-y-1 pl-4">
+                            <li><strong>Science:</strong> Habitat Deep Dive & Animal Needs (observe adaptations, discuss needs, identify matter).</li>
+                            <li><strong>Math:</strong> Aquatic Census & Data Visualization (count animals, use tally marks, create graphs).</li>
+                            <li><strong>Language Arts:</strong> Marine Life Journaling & Storytelling (draw/describe animals, learn vocabulary, create stories).</li>
+                            <li><strong>Physical Education:</strong> Mimic the Marine Life (imitate movements, walk extensively).</li>
+                            <li><strong>Social Studies:</strong> Conservation Conversation (discuss Aquarium's role, human impact, scarcity).</li>
+                        </ul>`
+                },
+                { 
+                    title: 'Week 2: Mountain Adventures & Earth\'s Forces', 
+                    outings: 'Stone Mountain Park',
+                    open: false,
+                    description: 'Explore geology and ecology, focusing on Earth\'s forces and movement.',
+                    activities_html: `
+                        <ul class="list-disc list-inside space-y-1 pl-4">
+                            <li><strong>Physical Education:</strong> Summit Challenge & Trail Exploration (hike Walk-Up Trail, focus on balance, endurance).</li>
+                            <li><strong>Science:</strong> Geology & Gravity Investigation (observe granite, discuss weathering/erosion, forces).</li>
+                            <li><strong>Math:</strong> Shadow Tracking & Nature Counting (measure/graph shadow lengths, count/graph trees/leaves).</li>
+                            <li><strong>Language Arts:</strong> Nature & History Journaling (draw/write about nature, discuss park history).</li>
+                            <li><strong>Social Studies:</strong> Landform Identification & Historical Figures (identify landforms, discuss geography's influence, Theodore Roosevelt).</li>
+                        </ul>`
+                },
+                { 
+                    title: 'Week 3: Art, Nature & Community Connections', 
+                    outings: 'High Museum (2nd Sun), MLK Jr. Park, Piedmont Park/Nature Center',
+                    open: false,
+                    description: 'Blend artistic expression, natural observation, and understanding community impact.',
+                    activities_html: `
+                        <ul class="list-disc list-inside space-y-1 pl-4">
+                            <li><strong>Language Arts:</strong> "I Have a Dream" Speech & Creative Writing (at MLK Park, discuss speech, write/draw "dreams"). Complete Junior Ranger program.</li>
+                            <li><strong>Social Studies:</strong> Character Traits & Community Impact (at MLK Park, discuss Dr. King's traits, individual impact).</li>
+                            <li><strong>Art & Math:</strong> Art Exploration & Pattern Recognition (at High Museum, identify shapes/patterns in art, count elements).</li>
+                            <li><strong>Science & PE:</strong> Nature's Life Cycles & Active Play (at Nature Center/Piedmont Park, observe plant/animal life cycles, active play on trails/playground).</li>
+                        </ul>`
+                }
+            ],
+            toggleAccordion(index) {
+                this.themes[index].open = !this.themes[index].open;
+            }
+        }
+    }
+
+    function learningTipsData() {
+        return {
+            tips: [
+                { 
+                    title: 'Mastering Data Gathering & Visualization', 
+                    open: false,
+                    content_html: `
+                        <p>For ages 6-7, data gathering should be hands-on and immediate:</p>
+                        <ul class="list-disc list-inside space-y-1 mt-2 pl-4">
+                            <li>Focus on simple observations and counting (e.g., "How many red cars did we see?").</li>
+                            <li>Use tools like tally marks, simple picture graphs (1 picture = 1 item), and basic bar graphs with blocks or colored pencils.</li>
+                            <li>Frame data collection around questions relevant to the outing ("How many types of fish at the Aquarium?").</li>
+                            <li>After collecting, discuss what the data reveals ("Which group has most/least?").</li>
+                            <li>This aligns with 1st grade "real-life questions" and 2nd grade "draw picture/bar graph" math standards.</li>
+                        </ul>`
+                },
+                { 
+                    title: 'Cultivating Language Arts Through Experience', 
+                    open: false,
+                    content_html: `
+                        <p>Outings are rich contexts for language development:</p>
+                        <ul class="list-disc list-inside space-y-1 mt-2 pl-4">
+                            <li>Encourage using all five senses to describe observations ("What does the water feel like?").</li>
+                            <li>Provide small notebooks for drawing and writing (even a few words are great!).</li>
+                            <li>Introduce new vocabulary related to the outing (e.g., "aquatic," "geology," "civics").</li>
+                            <li>Prompt retelling of favorite parts or creating imaginative stories.</li>
+                            <li>Ask open-ended questions ("Why do you think...?" "What if...?").</li>
+                            <li>Read related books before/after visits to deepen comprehension.</li>
+                        </ul>`
+                },
+                { 
+                    title: 'Maximizing Physical Education Benefits', 
+                    open: false,
+                    content_html: `
+                        <p>Incorporate PE objectives explicitly:</p>
+                        <ul class="list-disc list-inside space-y-1 mt-2 pl-4">
+                            <li>During hikes, discuss balance and weight transfer.</li>
+                            <li>At playgrounds, encourage specific motor skills (throwing, catching).</li>
+                            <li>Create mini-challenges ("Can you walk like a crab?").</li>
+                            <li>Play simple games reinforcing personal space in crowded areas.</li>
+                            <li>Ensure regular water breaks and rest periods.</li>
+                        </ul>`
+                },
+                { 
+                    title: 'Pre- and Post-Visit Engagement', 
+                    open: false,
+                    content_html: `
+                        <p>Learning extends beyond the venue visit:</p>
+                        <ul class="list-disc list-inside space-y-1 mt-2 pl-4">
+                            <li><strong>Before:</strong> Brief research on the venue/topic, set learning goals, preview vocabulary, explore maps.</li>
+                            <li><strong>During:</strong> Active questioning, encourage journaling/drawing.</li>
+                            <li><strong>After:</strong> Discuss learnings, surprises, further questions. Creative projects (draw, build, write a report, play). Create graphs from collected data.</li>
+                        </ul>`
+                },
+                { 
+                    title: 'Tips for Successful Outings', 
+                    open: false,
+                    content_html: `
+                        <p>Ensure enjoyable and sustainable learning adventures:</p>
+                        <ul class="list-disc list-inside space-y-1 mt-2 pl-4">
+                            <li><strong>Flexibility:</strong> Be prepared to deviate if children show strong interest in something unexpected.</li>
+                            <li><strong>Sustenance:</strong> Pack plenty of water and healthy snacks.</li>
+                            <li><strong>Comfort:</strong> Dress for active play and varying weather.</li>
+                            <li><strong>Pacing:</strong> Focus on a few key areas for deeper engagement rather than trying to see everything.</li>
+                            <li><strong>Involvement:</strong> Let children help choose activities or topics.</li>
+                            <li><strong>Celebration:</strong> Acknowledge their efforts, discoveries, and participation.</li>
+                        </ul>`
+                }
+            ],
+            toggleAccordion(index) {
+                this.tips[index].open = !this.tips[index].open;
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
